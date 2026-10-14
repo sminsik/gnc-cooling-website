@@ -2,7 +2,7 @@ import {styleGuideFooter} from './style-guide-footer.ts';
 import {animatedIcon,animateTextArrows} from './animated-icons.ts';
 import {pageEnglishLabels} from './page-labels.ts';
 import {styleGuideHeader} from './style-guide-header.ts';
-// Local-only, read-only UI samples. No customer or staff records are loaded.
+// Read-only UI samples for local use and the Access-protected development preview.
 export function styleGuidePage():Response {
  const section=(id:string,n:string,title:string,body:string)=>`<section id="${id}" class="ui-section"><div class="ui-section-title"><span>${n}</span><h2>${title}</h2><span class="ui-tag">제안 · 임시 기준</span></div>${body}</section>`;
  const colors=[['상단 · 주요 글자','#111111'],['본문 배경','#FFFFFF'],['보조 배경','#F5F5F3'],['보조 글자','#595959'],['구분선','#D9D9D9'],['강조색 · 벤치마킹','#0084A6']];

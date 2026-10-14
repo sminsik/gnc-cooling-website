@@ -236,7 +236,7 @@ Access를 다시 조회하고 URL 변경 전파 시간을 둔 재점검에서는
 
 검증은 13개 경로 × GET/HEAD × 비로그인/위조 JWT/가짜 CF_Authorization 세션의 조합입니다. 메인, 원격 스타일 가이드, CSS, JS 2개, 제품/브랜드 이미지, 폰트, 자산 메타데이터 JSON, health/제품 API, 관리자 로그인, 고객 접수 API를 확인했습니다. 자동으로 로그인 리다이렉트를 따라가거나 OTP 이메일을 발송하지 않았습니다. 페이지·스크립트·스타일·이미지·API 내용은 인증 없는 응답으로 반환되지 않았습니다.
 
-정상 인증 사용자의 원격 브라우저 로그인·JWT 전달·화면/자산 표시·health 성공은 **사용자 검증 대기**입니다. 이를 78개 인증 전 HTTP 점검과 구분합니다. `/style-guide`는 기존 코드상 원격에서 숨겨지는 경로라 OTP 인증 후에도 404가 정상이며, 이번에는 인증 전 Access 경유를 확인한 것입니다.
+정상 인증 사용자의 원격 브라우저 로그인·JWT 전달·화면/자산 표시·health 성공은 **사용자 검증 대기**입니다. 이를 78개 인증 전 HTTP 점검과 구분합니다. 연결 당시 `/style-guide`는 localhost 전용 조건 때문에 OTP 인증 후에도 404였습니다. 이 제한은 아래 후속 수정으로 Access 보호 개발 미리보기에서 해제했습니다.
 
 ### 사용자의 브라우저 OTP 확인 순서
 
@@ -257,3 +257,23 @@ node scripts/build-development-preview.mjs --protected-url
 ```
 
 이 옵션은 workers_dev=true와 Access 팀/audience 설정을 요구하고 나머지 미리보기·라우트·예약 작업·업무 잠금 정책은 그대로 검사합니다. 옵션 없이 활성 설정을 검사하면 중단합니다. 이 검증은 API 정책 확인이나 URL 활성화/배포를 자동 실행하지 않습니다. 공유 개발 템플릿은 계속 URL 비활성 기본값을 유지합니다.
+
+
+## 후속: 개발 미리보기 /style-guide 404 수정 (2026-10-14)
+
+사용자의 정상 Access 로그인 이후 `/style-guide`가 NOT_FOUND를 반환한 원인은 `src/index.ts`의 localhost/loopback 호스트 제한이었습니다. Access 게이트를 통과한 원격 개발 호스트도 이 조건에서 거부됐습니다. 자산 누락이나 경로 허용 목록 누락이 원인은 아니었습니다.
+
+개발 환경(`DEPLOYMENT_ENVIRONMENT=development`)에서는 기존의 JWT 검증을 통과한 뒤 스타일 가이드 GET/HEAD를 허용하도록 라우터 조건을 수정했습니다. 로컬 loopback은 기존대로 허용하며 운영/일반 원격 환경은 여전히 404입니다. JWT·정책·자산 Worker 우선 실행·관리자/업로드/고객 업무·scheduled 잠금은 변경하지 않았습니다.
+
+직접 참조 자산 `/style.css`, `/ui-guide.css`, `/animated-icons.css`, `/header.js`, `/tween-ui.css`, `/tween-ui.js`, `/brand/gnc-color.png`, `/brand/gnc-white.png` 8개의 존재와 기존 자산 라우트 허용을 확인했습니다. UI 빌드 후 Worker 배포 산출물에 styleGuidePage·개발 환경 라우팅 조건·가이드 자산 경로가 포함된 것도 확인했습니다. 실제 설정의 `run_worker_first:true`, 승인된 팀/AUD, 개발 D1/R2 바인딩은 유지했습니다.
+
+검증: 전체 테스트 **128개**, 코드 검사·UI 빌드·실제 개발 설정 dry-run 통과. 합성 서명 JWT/JWKS로 개발 가이드 GET/HEAD 200·HTML과 참조 자산 정상 라우팅, 운영 원격 404·로컬 200·인증 전 차단을 회귀 검증했습니다. 스타일 가이드는 DB/R2 업무 데이터를 읽거나 쓰지 않습니다.
+
+개발 Worker만 재배포했고 활성 버전은 `889a5504-b5f3-4904-a46b-a352120c0023`입니다. 재조회에서 AUD 일치·업무 잠금·미리보기 비활성·라우트/도메인/예약 작업 0개를 확인했습니다. 인증 없는/위조 JWT/가짜 세션 × GET/HEAD의 **102개 원격 요청 모두 지정 팀의 Access 로그인으로 이동**했습니다. 메인·가이드·가이드 CSS/JS·이미지/폰트·API를 포함하며 앱 내용의 인증 전 노출은 확인되지 않았습니다. 이번 재배포에서는 URL을 추가로 활성화하거나 Access 정책을 수정하지 않았습니다.
+
+로그인 후 재확인 주소:
+
+- 메인: https://gnc-cooling-development.sminsik-workspace.workers.dev/
+- 스타일 가이드: https://gnc-cooling-development.sminsik-workspace.workers.dev/style-guide
+
+이미 Access 세션이 있으면 새로고침하고, 없으면 지정 이메일의 OTP로 로그인한 뒤 가이드 HTML·스타일·Tween UI·브랜드 이미지가 표시되는지 확인합니다. 실제 사용자 세션으로 로그인한 원격 화면의 최종 표시 확인은 사용자 재확인 대기이며, 자동 회귀 검증과 인증 전 HTTP 보호 검증을 구분합니다. 토큰·쿠키·JWT·OTP는 출력하거나 커밋하지 않았습니다.

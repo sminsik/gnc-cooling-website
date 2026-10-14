@@ -38,7 +38,7 @@ const application = {
    const publicContent=await publicContentRoute(env.DB,path,url.searchParams);if(publicContent)return head(publicContent);
    const notices=await noticesRoute(env.DB,path,url.searchParams);if(notices)return head(notices);
    if(path==='/style-guide'){
-    if(!['localhost','127.0.0.1','[::1]'].includes(url.hostname))return head(privateUnavailable(404));
+    if(!isDevelopmentPreview(env)&&!['localhost','127.0.0.1','[::1]'].includes(url.hostname))return head(privateUnavailable(404));
     return head(styleGuidePage());
    }
    if(path==='/api/health') {

@@ -30,7 +30,7 @@ test('verified viewers cannot open staff, customer, uploads or any mutation; loc
 });
 test('all page, JS, CSS, image, font and API paths require Access before any binding',async()=>{
  const binding=new Proxy({}, {get(){throw new Error('unauthenticated binding access');}});
- const paths=['/','/products','/style.css','/tween-ui.js','/home-products.js','/generated/example.webp','/brand/example.svg','/reference/example.png','/fonts/example.woff2','/api/products','/api/health','/api/admin/products/x/uploads'];
+ const paths=['/','/style-guide','/products','/style.css','/tween-ui.js','/home-products.js','/generated/example.webp','/brand/example.svg','/reference/example.png','/fonts/example.woff2','/api/products','/api/health','/api/admin/products/x/uploads'];
  for(const path of paths)for(const method of ['GET','HEAD'])for(const jwt of [undefined,'invalid.jwt.signature']){
   const r=await worker.fetch(request(path,jwt,method),{...env,DB:binding,FILES:binding,ASSETS:binding});
   assert.equal(r.status,403,method+' '+path);assert.equal(r.headers.get('Cache-Control'),'no-store');
@@ -47,4 +47,25 @@ test('real routing checks authenticated health without exposing IDs, keys or err
   await worker.scheduled({},bindings,{waitUntil(){throw new Error('development scheduled work must remain disabled');}});
  }finally{globalThis.fetch=original;}
  const external=await worker.fetch(request('/api/health'),{DB:{},FILES:{}});assert.equal(external.status,404);
+});
+
+
+test('style guide and referenced assets work only locally or behind verified development Access',async()=>{
+ const original=globalThis.fetch;globalThis.fetch=async()=>Response.json({keys:[jwk]});
+ try{
+  const signed=await token();let assetReads=0;
+  const bindings={...env,DB:new Proxy({}, {get(){throw new Error('style guide must not read DB');}}),ASSETS:{fetch:async()=>{assetReads++;return new Response('asset',{headers:{'Content-Type':'text/plain'}});}}};
+  for(const method of ['GET','HEAD']){
+   const r=await worker.fetch(request('/style-guide',signed,method),bindings);assert.equal(r.status,200);assert.match(r.headers.get('Content-Type'),/text\/html/);
+   if(method==='GET'){
+    const html=await r.text();assert.ok(html.includes('Style Guide'));
+    const paths=[...html.matchAll(/(?:src|href)="(\/[^"#]+)"/g)].map(m=>m[1]).filter(p=>/\.(css|js|png|svg|webp|woff2?|ttf)$/.test(p));
+    assert.ok(paths.includes('/ui-guide.css'));assert.ok(paths.includes('/tween-ui.js'));
+    for(const path of new Set(paths))assert.equal((await worker.fetch(request(path,signed),bindings)).status,200,path);
+   }else assert.equal(await r.text(),'');
+  }
+  assert.ok(assetReads>=6);
+  assert.equal((await worker.fetch(new Request('https://production.example.invalid/style-guide'),{})).status,404);
+  assert.equal((await worker.fetch(new Request('http://127.0.0.1:8787/style-guide'),{})).status,200);
+ }finally{globalThis.fetch=original;}
 });
