@@ -1,7 +1,7 @@
 // Only development read operations are available remotely. Restore never contacts Cloudflare.
 import {spawnSync} from 'node:child_process';
 import {createHash,randomUUID} from 'node:crypto';
-import {readFileSync,writeFileSync,mkdirSync,lstatSync,existsSync,chmodSync,readdirSync,copyFileSync} from 'node:fs';
+import {readFileSync,writeFileSync,mkdirSync,lstatSync,existsSync,chmodSync,copyFileSync} from 'node:fs';
 import {resolve,join,relative,isAbsolute} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {DatabaseSync} from 'node:sqlite';
@@ -102,6 +102,8 @@ function checkedBackup(path,allowPending=false){
  const dir=resolve(path);requireOk(dir.startsWith(backupRoot+'/'),'Only ignored development backups accepted.');secureDirectory(dir);
  const manifest=JSON.parse(privateFile(join(dir,'manifest.json')));
  requireOk(manifest.format===1&&Array.isArray(manifest.r2)&&(manifest.verified===true||allowPending),'Unsupported/incomplete backup.');
+ requireOk(manifest.d1File?.file==='d1.sql','Unsafe D1 payload path.');
+ for(const object of manifest.r2)requireOk(typeof object.metadata?.key==='string'&&object.file==='r2/'+hash(Buffer.from(object.metadata.key))+'.bin','Unsafe R2 payload mapping.');
  const payloads=[manifest.d1File,...manifest.r2];const names=new Set();
  for(const entry of payloads){
   requireOk(entry&&(entry.file==='d1.sql'||/^r2\/[a-f0-9]{64}\.bin$/.test(entry.file)),'Unsafe payload path.');

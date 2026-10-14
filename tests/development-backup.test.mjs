@@ -60,5 +60,7 @@ test('backup rejects unsafe symlinks, payload paths and customer-key encrypted o
  writeFileSync(join(dir,'manifest.json'),JSON.stringify(manifest));
  await assert.rejects(()=>restore(dir,join(work('.cloudflare-restore-tests'),'symlink')),/Unsafe backup file/);
  manifest.d1File.file='../../README.md';writeFileSync(join(dir,'manifest.json'),JSON.stringify(manifest));
- await assert.rejects(()=>restore(dir,join(work('.cloudflare-restore-tests'),'traversal')),/Unsafe payload/);
+ await assert.rejects(()=>restore(dir,join(work('.cloudflare-restore-tests'),'traversal')),/Unsafe D1 payload/);
+ manifest.d1File.file='r2/'+'a'.repeat(64)+'.bin';writeFileSync(join(dir,'manifest.json'),JSON.stringify(manifest));
+ await assert.rejects(()=>restore(dir,join(work('.cloudflare-restore-tests'),'wrong-d1-mapping')),/Unsafe D1 payload/);
 });
