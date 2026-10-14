@@ -1,4 +1,6 @@
 import {styleGuidePage} from './style-guide.ts';
+import {isDevelopmentPreview,previewGate,identifyPreview} from './development-preview.ts';
+import type {PreviewEnv} from './development-preview.ts';
 import {homeContent} from './public-home.ts';
 import {runMaintenance} from './maintenance.ts';
 import {processWorkflowNotifications} from './inquiry-notifications.ts';
@@ -15,16 +17,16 @@ import type { StaffEnv } from './staff-session.ts';
 import { isWithinPath, privateUnavailable } from './access-policy.ts';
 import { CatalogInputError, listProducts, productDetail, productImage } from './catalog.ts';
 import { homePage, staticContent, placeholderPage, productListPage, productDetailPage, publicError, authenticationPlaceholder } from './public-pages.ts';
-interface Env extends StaffEnv,InquiryEnv { ASSETS: Fetcher; DB: D1Database; FILES: R2Bucket; FILE_SCANNER?: Fetcher }
+interface Env extends StaffEnv,InquiryEnv,PreviewEnv { ASSETS: Fetcher; DB: D1Database; FILES: R2Bucket; FILE_SCANNER?: Fetcher }
 const json=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
-export default {
- async scheduled(_event:ScheduledController,env:Env,ctx:ExecutionContext){ctx.waitUntil(runMaintenance({staff:()=>cleanStaffAuth(env),uploads:()=>expireUploads(env),scanner:()=>processFiles(env),verificationMail:()=>processInquiryMail(env),verificationStatus:()=>reconcileVerificationMail(env),notifications:()=>processWorkflowNotifications(env),customerTransient:()=>cleanInquiryTransient(env),temporaryFiles:()=>cleanTemporaryFiles(env)}));},
+const application = {
+ async scheduled(_event:ScheduledController,env:Env,ctx:ExecutionContext){if(isDevelopmentPreview(env))return;ctx.waitUntil(runMaintenance({staff:()=>cleanStaffAuth(env),uploads:()=>expireUploads(env),scanner:()=>processFiles(env),verificationMail:()=>processInquiryMail(env),verificationStatus:()=>reconcileVerificationMail(env),notifications:()=>processWorkflowNotifications(env),customerTransient:()=>cleanInquiryTransient(env),temporaryFiles:()=>cleanTemporaryFiles(env)}));},
  async fetch(request: Request, env: Env): Promise<Response> {
   const url=new URL(request.url);
   let path:string;
   try {path=decodeURIComponent(url.pathname);}catch{return privateUnavailable(404);}
   const admin=await adminRoute(request,env,path);if(admin)return admin;
-  const inquiry=await inquiryRoute(request,env,path);if(inquiry)return inquiry;
+  const inquiry=await inquiryRoute(request,isDevelopmentPreview(env)?{...env,INQUIRY_INTAKE_ENABLED:''}:env,path);if(inquiry)return inquiry;
   if(['/my-inquiries','/api/my-inquiries'].some(base=>isWithinPath(path,base)))return path.startsWith('/api/')?privateUnavailable(401):authenticationPlaceholder(path,401);
   const contentFile=path.match(/^\/api\/content-files\/([^/]+)$/);
   if(contentFile&&['GET','HEAD'].includes(request.method)){try{const response=await fileResponse(env,contentFile[1],null);return request.method==='HEAD'?new Response(null,{status:response.status,headers:response.headers}):response;}catch{return privateUnavailable(404);}}
@@ -40,6 +42,13 @@ export default {
     return head(styleGuidePage());
    }
    if(path==='/api/health') {
+    if(!isDevelopmentPreview(env)&&!['localhost','127.0.0.1','[::1]'].includes(url.hostname))return head(privateUnavailable(404));
+    if(isDevelopmentPreview(env)){
+     let ok=false;
+     try{const row=await env.DB.prepare('SELECT COUNT(*) AS count FROM d1_migrations').first<{count:number}>();if(row?.count!==12)throw new Error('schema');await env.FILES.list({limit:1});ok=true;}catch{}
+     console.info(JSON.stringify({event:'preview-binding-check',ok,requestId:crypto.randomUUID()}));
+     return head(json({ok,environment:'development'},ok?200:503));
+    }
     await env.DB.prepare('SELECT 1').first();await env.FILES.list({limit:1});
     return head(json({ok:true,database:'connected',files:'connected'}));
    }
@@ -66,5 +75,12 @@ export default {
    const message=error instanceof CatalogInputError?error.message:'자료를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.';
    return head(isApi?json({code:status===400?'INVALID_INPUT':'SERVICE_UNAVAILABLE',error:message},status):publicError(path,status,message));
   }
+ }
+} satisfies ExportedHandler<Env>;
+export default {
+ scheduled:application.scheduled,
+ async fetch(request:Request,env:Env):Promise<Response>{
+  const denied=await previewGate(request,env);
+  return identifyPreview(denied||await application.fetch(request,env),env);
  }
 } satisfies ExportedHandler<Env>;

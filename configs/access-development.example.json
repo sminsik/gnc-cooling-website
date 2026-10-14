@@ -1,0 +1,11 @@
+{
+  "type": "self_hosted",
+  "name": "GNC development preview — plan only",
+  "destinations": [{"type": "worker", "worker_id": "REPLACE_WITH_APPROVED_DEVELOPMENT_WORKER_ID"}],
+  "session_duration": "1h",
+  "policies": [{
+    "name": "Approved individual viewers",
+    "decision": "allow",
+    "include": [{"email": {"email": "REPLACE_WITH_APPROVED_USER@example.invalid"}}]
+  }]
+}

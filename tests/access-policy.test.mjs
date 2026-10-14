@@ -77,7 +77,7 @@ test('public assets and health still work; private errors reveal no record data'
     FILES: { list: async () => ({ objects: [] }) },
   };
   assert.equal(await (await worker.fetch(new Request('https://local.test/style.css'), env)).text(), 'public page');
-  const health = await worker.fetch(new Request('https://local.test/api/health'), env);
+  const health = await worker.fetch(new Request('http://127.0.0.1:8787/api/health'), env);
   assert.equal(health.status, 200);
   assert.equal((await health.json()).ok, true);
   assert.equal((await worker.fetch(new Request('https://local.test/api/unimplemented'), env)).status, 404);

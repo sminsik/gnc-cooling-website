@@ -11,7 +11,7 @@
   "triggers": {"crons": []},
   "observability": {"enabled": false},
   "assets": {"directory": "../public", "binding": "ASSETS", "run_worker_first": true},
-  "vars": {"STAFF_AUTH_MODE": "", "APP_ORIGIN": "", "INQUIRY_INTAKE_ENABLED": "", "CUSTOMER_ORIGIN": ""},
+  "vars": {"STAFF_AUTH_MODE": "", "APP_ORIGIN": "", "INQUIRY_INTAKE_ENABLED": "", "CUSTOMER_ORIGIN": "", "DEPLOYMENT_ENVIRONMENT": "development", "ACCESS_TEAM_DOMAIN": "", "ACCESS_AUD": ""},
   "services": [],
   "d1_databases": [{
     "binding": "DB",

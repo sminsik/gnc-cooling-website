@@ -15,7 +15,9 @@ for(const environment of ['development','production']){
  assert.deepEqual(config.triggers.crons,[]);assert.deepEqual(config.services,[]);
  assert.equal(config.vars.STAFF_AUTH_MODE,'');assert.equal(config.vars.APP_ORIGIN,'');
  assert.equal(config.vars.INQUIRY_INTAKE_ENABLED,'');assert.equal(config.vars.CUSTOMER_ORIGIN,'');
- assert.deepEqual(Object.keys(config.vars).sort(),['APP_ORIGIN','CUSTOMER_ORIGIN','INQUIRY_INTAKE_ENABLED','STAFF_AUTH_MODE']);
+ const allowed=['APP_ORIGIN','CUSTOMER_ORIGIN','INQUIRY_INTAKE_ENABLED','STAFF_AUTH_MODE'];
+ if(environment==='development'){allowed.push('DEPLOYMENT_ENVIRONMENT','ACCESS_TEAM_DOMAIN','ACCESS_AUD');assert.equal(config.vars.DEPLOYMENT_ENVIRONMENT,'development');assert.equal(config.vars.ACCESS_TEAM_DOMAIN,'');assert.equal(config.vars.ACCESS_AUD,'');}
+ assert.deepEqual(Object.keys(config.vars).sort(),allowed.sort());
  assert.equal(config.d1_databases.length,1);assert.equal(config.d1_databases[0].binding,'DB');
  assert.equal(config.d1_databases[0].database_name,config.name);assert.match(config.d1_databases[0].database_id,/^REPLACE_WITH_APPROVED_/);
  assert.equal(config.r2_buckets.length,1);assert.equal(config.r2_buckets[0].binding,'FILES');
@@ -27,6 +29,11 @@ for(const environment of ['development','production']){
 }
 assert.notEqual(templates[0].config.d1_databases[0].database_id,templates[1].config.d1_databases[0].database_id);
 assert.notEqual(templates[0].config.r2_buckets[0].bucket_name,templates[1].config.r2_buckets[0].bucket_name);
+const access=JSON.parse(await readFile(resolve(root,'configs/access-development.example.json'),'utf8'));
+assert.equal(access.type,'self_hosted');assert.equal(access.session_duration,'1h');
+assert.deepEqual(access.destinations,[{type:'worker',worker_id:'REPLACE_WITH_APPROVED_DEVELOPMENT_WORKER_ID'}]);
+assert.equal(access.policies.length,1);assert.equal(access.policies[0].decision,'allow');
+assert.deepEqual(access.policies[0].include,[{email:{email:'REPLACE_WITH_APPROVED_USER@example.invalid'}}]);
 if(process.argv.includes('--dry-run')){
  const work=resolve(root,'.cloudflare-plan');await mkdir(work,{recursive:true,mode:0o700});
  for(const {environment,path,config} of templates){
