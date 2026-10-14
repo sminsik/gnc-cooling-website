@@ -6,13 +6,13 @@
 
 대상 Worker 이름은 `gnc-cooling-development`입니다. Git 제외 `configs/wrangler.development.jsonc`의 `DB`는 개발 D1 `gnc-cooling-development`, `FILES`는 비공개 Standard R2 `gnc-cooling-development-files`입니다. D1의 12개 마이그레이션 적용/검증은 [기록](development-d1-migrations.md)을 따릅니다. 운영 템플릿과 루트 로컬 설정은 변경하지 않았습니다. 준비 시작 시 HEAD와 origin/main이 `09e2dc1`로 일치했고 작업 트리는 깨끗했습니다.
 
-실제 개발 설정과 개발 템플릿에 `DEPLOYMENT_ENVIRONMENT=development`, 비어 있는 `ACCESS_TEAM_DOMAIN`·`ACCESS_AUD`를 추가했습니다. 이 값은 Zero Trust 팀 도메인(프로토콜 없는 `팀명.cloudflareaccess.com`)과 승인된 앱의 audience 태그로 나중에 채웁니다. 비밀번호가 아닌 식별 설정도 실제 파일은 Git에서 제외합니다. 현재 값이 비어 있으므로 Worker는 요청을 503으로 거부합니다.
+실제 개발 설정과 개발 템플릿에 `DEPLOYMENT_ENVIRONMENT=development`, 비어 있는 `ACCESS_TEAM_DOMAIN`·`ACCESS_AUD`를 추가했습니다. 이 값은 Zero Trust 팀 도메인(프로토콜 없는 `팀명.cloudflareaccess.com`)과 승인된 앱의 audience 태그로 나중에 채웁니다. 비밀번호가 아닌 식별 설정도 실제 파일은 Git에서 제외합니다. 후속 사용자 지정으로 실제 개발 설정의 팀 도메인은 채웠고 audience는 아직 비어 있습니다. 따라서 Worker는 계속 요청을 503으로 거부합니다.
 
 `workers_dev:false`, `preview_urls:false`, `routes:[]`, 예약 작업·서비스 바인딩 없음, 관측 로그 비활성은 유지합니다. R2 공개 URL/도메인도 그대로 비활성 상태입니다. 실제 계정/DB 바인딩을 가진 개발 설정으로 dry-run이 통과했지만 이는 원격 Worker 배포나 런타임 연결 완료를 뜻하지 않습니다.
 
 ## 권장 접근 제한과 조건
 
-**개발 Worker 하나의 All traffic Access 정책 + 승인한 개별 이메일 allowlist + workers.dev 주소**를 권장합니다. Workers의 다른 자원이나 운영 도메인에 영향을 주는 계정 전체 정책은 적용하지 않습니다. Previews only는 개발 Worker의 일반 배포 주소를 보호하지 않으므로 선택하지 않습니다. 실제 사용자 목록은 아직 미정입니다. 정책에서 Everyone, 이메일 도메인 전체, Bypass를 사용하지 않습니다.
+**개발 Worker 하나의 All traffic Access 정책 + 승인한 개별 이메일 allowlist + workers.dev 주소**를 권장합니다. Workers의 다른 자원이나 운영 도메인에 영향을 주는 계정 전체 정책은 적용하지 않습니다. Previews only는 개발 Worker의 일반 배포 주소를 보호하지 않으므로 선택하지 않습니다. 후속으로 사용자가 개별 이메일 1개와 이메일 일회용 코드·1시간 세션을 지정했습니다. 실제 이메일은 Git 제외 적용 요청 파일에만 기록합니다. 정책에서 Everyone, 이메일 도메인 전체, Bypass를 사용하지 않습니다.
 
 Workers Access에는 Zero Trust 활성화와 Workers/Access 앱 관리 권한이 필요합니다. Worker 수준 정책은 그 Worker의 여러 경로/주소를 함께 보호합니다. 호스트 기반 정책은 정확한 주소만 보호하므로 대체 주소 누락을 점검해야 합니다. [공식 Workers Access 안내](https://developers.cloudflare.com/workers/configuration/cloudflare-access/)
 
@@ -98,3 +98,106 @@ Worker rollback은 D1 데이터·마이그레이션·R2 파일·DNS·Access 정�
 완료: 실제 개발 바인딩 dry-run, UI 빌드·코드 검사·자동 테스트 126개, Access JWT 검증/장애 차단·업무/예약 작업 잠금·내부 정보 응답 방지. 루트 로컬 설정·운영 템플릿 보존, 실제 설정·번들·비밀값 Git 제외.
 
 미확인/남은 설정: Zero Trust 활성화·요금제/좌석·Access 관리 권한, workers.dev 서브도메인, 승인 사용자·로그인 제공자, 실제 개발 Worker ID, 앱 audience·팀 도메인, 실제 Access 정책·JWT 헤더 전달·브라우저 시험·JWT 검증의 Free CPU 한도 적합성, 원격 Worker D1/R2 런타임 연결, 플랫폼 로그, 첫 실배포 및 롤백 시험. 코드 준비를 서비스 연결/배포 완료로 표시하지 않습니다.
+
+
+## 후속: 지정 사용자·OTP 정책의 실제 적용 준비 (2026-10-14)
+
+사용자가 지정한 팀 도메인은 `sminsik-workspace.cloudflareaccess.com`, 대상은 `gnc-cooling-development`, 허용 대상은 지정한 개인 이메일 **1개**, 로그인은 이메일 일회용 코드, 세션은 **1시간**입니다. 이 지정은 이번 원격 적용 승인이 아닙니다. 실제 이메일과 개인화된 앱/정책 요청은 Git 제외 `.cloudflare-plan/`에 기록했고 공유 템플릿은 그대로 유지합니다.
+
+### 읽기 전용 API 확인
+
+설정 파일의 계정이 인증된 계정 목록에 포함됨을 재확인했습니다. 이후 동일 계정에 GET 요청만 실행했습니다. 토큰·credential 원문·IdP 비밀 설정은 출력/문서 저장하지 않았습니다.
+
+| 조회 | 실제 결과 | 해석 |
+| --- | --- | --- |
+| Access apps | HTTP 200, 0개 | 조회된 계정에 기존 앱 없음 |
+| Access reusable policies | HTTP 200, 0개 | 기존 재사용 정책 없음 |
+| Access identity providers | HTTP 200, 0개 | OTP 제공자도 아직 없음 |
+| Access organization | HTTP 403, 오류 10000 | 팀 도메인과 이 계정의 일치 여부 미확인. 조직 부재로 단정하지 않음 |
+| Worker scripts/Worker 목록 | HTTP 200, 대상 없음 | 신규 Worker ID가 아직 없어 Worker destination 요청 완성 불가 |
+| workers.dev subdomain | HTTP 404, 오류 10007 | 실제 주소 미확인. 대시보드에서 서브도메인 준비 상태 확인 필요 |
+| OAuth 선언 scope | workers:write 있음, access:read/access:write 없음 | 앱/IdP 읽기는 실제로 성공했지만 조직 조회는 실패. Access 생성 권한은 쓰기 요청 없이 확정할 수 없음 |
+
+읽기 성공을 쓰기 가능으로 보고하지 않습니다. 현 인증은 Access 쓰기 scope를 선언하지 않아 API 자동 적용 권한이 확인되지 않았습니다. Workers 쓰기 scope도 선언 상태만 확인했고 실제 배포 권한·플랜 제한은 쓰기로 시험하지 않았습니다. 요금제·청구·좌석 상태는 미확인입니다.
+
+### 준비한 실제 요청과 배포 설정
+
+모든 개인화 파일은 Git 제외이며 0600 권한입니다. 미정 ID는 `REPLACE_...`로 표시하고 **적용하지 않았습니다**.
+
+| 파일 | 구체적 내용 |
+| --- | --- |
+| `.cloudflare-plan/access-otp.request.json` | name=GNC One-time PIN login, type=onetimepin, config={} |
+| `.cloudflare-plan/access-development.request.json` | self_hosted 앱, 개발 Worker 1개 destination(type=worker, All traffic), allowed_idps=OTP 제공자 ID 1개, 자동 IdP 연결, WARP 인증 우회 비허용, 앱 세션 1h |
+| 위 앱의 정책 | allow 정책 1개, Include Email=승인 이메일 1개만, Require Login method=해당 OTP 제공자, 정책 세션 1h. Everyone/email_domain/bypass 규칙 없음 |
+| `.cloudflare-plan/development-worker-deployment-plan.json` | 처음은 모든 URL 비활성 배포 → 단일 Worker Access 적용 → audience 기록 → 별도 승인 후 workers.dev 활성화 순서와 미정 항목 |
+| `configs/wrangler.development.jsonc` | 요청한 팀 도메인 반영, ACCESS_AUD는 빈 값 유지. workers_dev/preview_urls=false, routes=[], crons/services 없음, 관리자/업로드/고객 업무 잠금 |
+| `.cloudflare-plan/access-readonly-report.json` | 비밀값 없는 API 상태/건수/선언 scope 확인 요약 |
+
+OTP provider ID·Worker ID·앱 audience가 없으므로 요청 파일을 API에 그대로 전송하면 안 됩니다. 실제 설정을 반영한 배포 없는 빌드와 단일 이메일/OTP/1h 정책의 구조 검증은 통과했습니다. 코드는 변경하지 않았으며 관리/업로드/고객/예약 작업 잠금은 유지됩니다.
+
+### 권한과 대시보드에서 필요한 설정
+
+현재 조직 조회 403 및 Access 쓰기 권한 미확인 때문에 대시보드에서 같은 계정의 상태를 확인하는 것이 선행입니다. 화면 경로는 Cloudflare 대시보드의 버전에 따라 명칭이 달라질 수 있습니다.
+
+1. 로그인한 Cloudflare 계정이 개발 D1/R2 설정의 계정과 같은지 확인합니다. Zero Trust > Settings에서 팀 도메인이 요청한 값인지 확인합니다. 다른 팀 도메인이면 기존 조직을 임의로 변경하지 말고 차이를 보고합니다. Free/좌석·결제 조건도 확인하되 유료 전환하지 않습니다.
+2. OTP 준비는 Zero Trust의 Integrations/Identity providers(또는 Authentication > Login methods)에서 One-time PIN을 추가합니다. **원격 변경이므로 별도 승인 후만** 진행합니다. 앱의 Login methods에서는 이 제공자만 선택하고 Accept all identity providers를 끕니다. [공식 OTP 설정](https://developers.cloudflare.com/cloudflare-one/integrations/identity-providers/one-time-pin/)
+3. Workers & Pages에서 계정 workers.dev 서브도메인을 확인합니다. 미등록이면 선택·등록할 이름을 먼저 확정하고 별도 승인 후 설정합니다. 회사 DNS·운영 도메인은 수정하지 않습니다.
+4. 별도 배포 승인 후 URL 비활성 개발 Worker를 생성합니다. Workers & Pages > 해당 Worker > Access에서 All traffic 보호를 선택합니다. 고급 정책은 Zero Trust > Access > Applications에서 **앱의 단일 Allow 정책에 개별 Email 1개만** 넣습니다. 기본 Everyone/계정 전체 회원/이메일 도메인 허용 정책이 생성되면 그대로 승인하지 않고 단일 이메일 규칙으로 정정해야 합니다. 앱/정책의 session duration은 둘 다 1h, OTP만 선택합니다.
+5. 앱 생성 후 audience 태그를 실제 개발 설정에 기록하고 정책·다른 앱의 호스트 범위/우선순위와 Bypass 없음 여부를 읽기 전용으로 재확인합니다. 그 후에만 별도 URL 활성화/재배포 승인으로 진행합니다. 허용 이메일 OTP, 다른 이메일·익명 거부, JWT 전달·업무 잠금 검증은 실제 적용 이후 진행하며 현재 미확인입니다.
+
+API를 사용할 경우 대시보드에서 **해당 계정만** 대상으로 `Access: Apps and Policies Write/Edit`, OTP 생성용 `Access: Organizations, Identity Providers, and Groups Write/Edit` 권한을 준비합니다. Read 권한은 상태 조회에 사용합니다. Workers 배포에는 Workers Scripts Write/Edit 및 개발 바인딩 접근 권한이 필요합니다. 전체 계정/Global API Key·DNS 쓰기 권한을 요구하지 않습니다. 토큰은 비밀 저장소나 환경변수로 제공하고 문서·요청 JSON·Git에 넣지 않습니다. 권한 생성/재로그인은 이번에 실행하지 않았습니다. [공식 권한 목록](https://developers.cloudflare.com/fundamentals/api/reference/permissions/)
+
+실제 적용 승인 전에는 API POST/PUT/PATCH/DELETE, Worker deploy, 공개 URL 활성화와 인증 코드 이메일 발송을 실행하지 않습니다. 이번에는 개인화 준비 파일과 문서만 갱신했고 커밋/push 요청이 없어 작업 트리에 문서를 남겨 둡니다.
+
+
+## 후속: URL 비활성 최초 배포 결과 (2026-10-14)
+
+사용자의 명시적 최초 배포 승인으로 소스 커밋 `9cfbf07`와 최신 Git 제외 개발 설정을 사용했습니다. 코드 검사·관련 테스트·배포 없는 빌드 및 실제 미완성 Access 설정의 24개 페이지/자산/API 요청 차단 검증 후 한 번 배포했습니다. 설정은 workers_dev/preview_urls=false, routes/crons/services 비어 있음, run_worker_first=true, development 식별, ACCESS_AUD 빈 값으로 유지했습니다. 자동 구성·자동 자원 생성 흐름은 사용하지 않았습니다.
+
+배포 CLI는 오류 **10063**으로 종료했습니다. 이 오류는 계정 workers.dev 서브도메인 초기화 필요와 관련 있습니다. 다만 실패 후 읽기 전용 재조회에서 `gnc-cooling-development` Worker 생성, 버전 1의 deployment 존재와 100% 배정, 개발 D1/R2 바인딩 일치를 확인했습니다. 따라서 단순히 미생성으로 보고하거나 전체 배포를 재시도하지 않았습니다. 계정 서브도메인 등록이나 공개 주소 활성화로 오류를 해결하지 않았습니다. [Cloudflare SDK 이슈의 오류 설명](https://github.com/cloudflare/workers-sdk/issues/9045)
+
+| 실제 조회 | 확인 결과 |
+| --- | --- |
+| Worker/버전 | 개발 Worker 생성, 버전 1 활성 배정 100% |
+| workers.dev·미리보기 URL | enabled=false, previews_enabled=false |
+| 라우트·사용자 지정 도메인 | 각 0개 |
+| 예약 작업 | 0개 |
+| 바인딩/변수 | 지정 개발 D1 UUID·R2 이름과 일치. development·빈 audience·직원 인증/접수 잠금 확인 |
+| 데이터 | 배포 전후 D1 전체 스키마/행 수 검증 동일: 기본 제품군 3건·나머지 업무 데이터 0건. R2 Standard·파일 0개 유지 |
+
+정적 자산은 모든 공개 URL/라우트가 꺼진 상태이며, 소스·배포 설정의 Worker 우선 실행과 빈 audience에서 자산을 포함한 요청이 DB/R2/ASSETS 접근 전에 503으로 거부됨을 로컬 검증했습니다. 조회한 원격 설정/버전 API에는 run_worker_first 필드가 노출되지 않아 해당 필드의 원격 직접 재조회는 미확인입니다. 공개 URL을 켜서 HTTP 응답을 시험하지 않았습니다.
+
+Worker ID·version ID·실제 오류/확인 요약은 Git 제외 `.cloudflare-plan/initial-private-deployment.json`과 `.cloudflare-plan/private-worker-verification.json`에 저장했습니다. 개인화 Access 요청 파일에는 확인된 Worker ID만 반영했습니다. Access 앱/정책·OTP 제공자·권한은 적용하지 않았고 audience는 여전히 빈 값입니다. 따라서 이제 Access 화면에서 생성된 Worker를 선택할 수 있으나 정책 적용과 인증/URL 활성화는 별도 단계입니다. 대시보드 목록이 갱신되지 않으면 같은 계정인지 확인하고 새로고침합니다.
+
+코드·루트 로컬 설정·운영 템플릿은 변경하지 않았습니다. 이번 요청에는 커밋/push 지시가 없어 문서 기록은 기존 후속 문서 변경과 함께 작업 트리에 남깁니다.
+
+
+## 후속: 대시보드 생성 앱 확인 단계 — URL 활성화 보류 (2026-10-14)
+
+사용자가 대시보드에서 지정 이메일 1개·OTP만·앱/정책 1h의 앱을 만들었다고 보고했으며 화면의 ‘할당된 대상 없음’을 함께 알렸습니다. 이 상태를 연결 완료로 간주하지 않고 같은 개발 계정에서 앱 목록·Worker·IdP·조직·계정 서브도메인을 GET으로 조회했습니다.
+
+| 항목 | 이번에 확인된 상태 |
+| --- | --- |
+| 개발 Worker | 조회 성공, 생성 상태 유지 |
+| Access 앱 목록 | HTTP 200, 반환 앱 0개; 이름 또는 Worker ID 일치 앱 없음 |
+| 조직 | HTTP 403; 팀 도메인이 개발 계정에 속하는지 미확인 |
+| 계정 서브도메인 | HTTP 404/10007; 등록 이름 미확인 |
+| Worker URL | enabled=false, previews_enabled=false 유지 |
+| 대상·이메일 정책·OTP·세션 | API에서 앱을 식별하지 못해 미확인 |
+| AUD | 조회하지 못함; 실제 설정의 빈 audience 유지 |
+
+API 결과와 대시보드 보고가 불일치합니다. 계정 차이·앱 저장 상태·현재 인증의 Access 조회 범위를 확인해야 하며, 앱이 실제로 존재하지 않는다고 단정하지 않습니다. 실행 도구에 연결된 브라우저가 없어 대시보드 직접 확인도 하지 못했습니다. 사용자에게 상세 화면 URL을 요청했습니다. 원격 앱이 정확한 Worker ID를 대상으로 연결됐다는 증거가 없으므로 재배포·계정 서브도메인 등록·URL 활성화는 진행하지 않았습니다.
+
+계정 서브도메인은 **sminsik-workspace**를 후보로 먼저 보고했습니다. 가정한 주소 `https://gnc-cooling-development.sminsik-workspace.workers.dev`는 아직 등록/활성화된 완료 주소가 아닙니다. 이름의 사용 가능 여부도 미확인입니다. 기존 회사 DNS·운영 서비스·요금제·D1/R2 데이터는 변경하지 않았습니다.
+
+독립적으로 코드 검사·개발 dry-run과 관련 JWT 테스트를 확인했습니다. 합성 JWT/JWKS 테스트에 페이지·JS·CSS·이미지·폰트·API의 GET/HEAD × 비로그인/잘못된 JWT 48개 요청 조합을 추가했고 모든 바인딩 접근 전에 차단됨을 확인했습니다. 이는 로컬 자동 검증이며 실제 Cloudflare Access 보호·원격 HTTP 검증의 완료를 뜻하지 않습니다. 실서비스 로그인·외부 OTP 발송·공개 주소를 이용한 검사는 진행하지 않았습니다.
+
+### 대시보드에서 확인할 위치
+
+1. 현재 앱의 상세 URL에서 계정이 개발 Worker 계정과 같은지 확인합니다. Worker ID는 Git 제외 `.cloudflare-plan/private-worker-verification.json`에서 대조할 수 있습니다.
+2. Workers & Pages > `gnc-cooling-development` > Access에서 이 Worker의 **All traffic** 보호 연결을 확인합니다. 앱 이름만 같거나 ‘할당된 대상 없음’이면 연결 증거로 인정하지 않습니다. 기존 앱의 연결 대상·우선순위와 Worker ID가 일치하는지 확인한 뒤 원격 적용 범위를 정합니다. [Worker Access 범위](https://developers.cloudflare.com/workers/configuration/cloudflare-access/)
+3. Zero Trust > Access controls > Applications > 해당 앱 Configure > Additional settings의 **Application Audience (AUD) Tag**를 확인합니다. AUD는 앱 식별자이며 비밀번호·API 토큰이 아닙니다. 로컬 Git 제외 설정의 ACCESS_AUD에 기록하고 문서·커밋에는 실제 값을 적지 않습니다. [공식 AUD 위치](https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/validating-json/)
+4. API 확인이 필요하면 동일 계정에 범위를 제한한 Access Apps/Policies Read와 Organizations/Identity Providers/Groups Read 권한을 확인합니다. 실제 토큰·OTP·세션 쿠키는 보내거나 공개하지 않습니다.
+5. 대상 연결, 개별 이메일 1개 Allow, Everyone/email_domain/Bypass 없음, OTP만 선택, 앱/정책 모두 1h, AUD·팀 도메인을 읽기 전용으로 재확인한 후에만 재배포/주소 활성화 조건이 충족됩니다. 문제가 있으면 URL을 비활성화한다는 사용자 승인 범위도 유지합니다.
+
+현재 완료 주소는 없습니다. 이번에는 누적 준비/최초 배포/이번 미확인 상태를 포함한 문서와 인증 전 자산 차단 테스트만 커밋/push합니다. 실제 설정·API 응답 파일·AUD·비밀값은 제외합니다. 나머지 배포·URL 활성화와 원격 HTTP 시험은 대상 확인이 가능해진 다음에 이어서 진행해야 합니다.

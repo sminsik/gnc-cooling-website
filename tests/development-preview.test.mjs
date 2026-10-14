@@ -28,6 +28,15 @@ test('verified viewers cannot open staff, customer, uploads or any mutation; loc
  assert.equal((await previewGate(request('/',signed,'POST'),env,resolveKey)).status,405);
  assert.equal(await previewGate(request('/admin/login'),{},resolveKey),null);
 });
+test('all page, JS, CSS, image, font and API paths require Access before any binding',async()=>{
+ const binding=new Proxy({}, {get(){throw new Error('unauthenticated binding access');}});
+ const paths=['/','/products','/style.css','/tween-ui.js','/home-products.js','/generated/example.webp','/brand/example.svg','/reference/example.png','/fonts/example.woff2','/api/products','/api/health','/api/admin/products/x/uploads'];
+ for(const path of paths)for(const method of ['GET','HEAD'])for(const jwt of [undefined,'invalid.jwt.signature']){
+  const r=await worker.fetch(request(path,jwt,method),{...env,DB:binding,FILES:binding,ASSETS:binding});
+  assert.equal(r.status,403,method+' '+path);assert.equal(r.headers.get('Cache-Control'),'no-store');
+  const body=await r.text();assert.ok(!body.includes('<html'));assert.ok(!body.includes('example.webp'));
+ }
+});
 test('real routing checks authenticated health without exposing IDs, keys or error details',async()=>{
  const original=globalThis.fetch;globalThis.fetch=async(url)=>{assert.equal(String(url),'https://'+env.ACCESS_TEAM_DOMAIN+'/cdn-cgi/access/certs');return Response.json({keys:[jwk]});};
  try{
