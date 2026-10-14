@@ -19,7 +19,7 @@
 | 로컬 데이터 | 시연 데이터 생성 스크립트 있음. 각 시점 데이터 수는 당시 문서 기록 | D1 마이그레이션 0001~0012 적용. 제품·사례·자료·공지·파일·고객 문의 0건 |
 | 직원 인증 | `mvp-c-local.md` 최신 기록에 로컬 책임자 활성화 있음. 앞선 초대 중 기록은 이전 상태 | 직원·초대·비밀번호·세션 0건. `.dev.vars`·`.dev.vars.c-local` 없음 |
 | 직원 HTTPS | 개발용 인증서와 `https://localhost:8788` 검증 기록 | 지정 경로 인증서·개인키 없음. 공개 HTTP 미리보기와 별도 준비 필요 |
-| 파일 검사 | macOS ClamAV 1.5.4·정의 파일·Python 가상환경·실제 검사 기록 | 지정 가상환경·ClamAV 자료·정의 파일·공유 키 없음. 시스템 Python 3.14.4/Pillow 12.1.1, pikepdf 없음 |
+| 파일 검사 | macOS ClamAV 1.5.4·정의 파일·Python 가상환경·실제 검사 기록 | 프로젝트 가상환경 Python 3.14.4·Pillow 12.3.0·pikepdf 10.16.0, ClamAV 1.5.4·공식 정의 파일·공유 키 준비. [검증·한계](local-scanner.md) |
 | D1·R2 | 로컬 개발 바인딩과 시험 기록 | 로컬 바인딩 사용. 실제 개발용 클라우드 연결은 미확인 |
 | 이메일·공개 배포 | 실제 이메일 연결·운영 배포 미실시 기록 | 메일 바인딩·관련 비밀 설정 없음. 외부 미리보기 배포는 미확인 |
 | 백업·복구 | `.work/backups/`에 단계별 로컬 DB 백업 기록 | 과거 백업은 미포함. 2026-10-14 로컬 D1·R2 백업과 격리 복원 검증 완료. [명령·결과·한계](local-backup.md) |
@@ -30,7 +30,7 @@ Mac의 로컬 DB·직원 계정·비밀값·인증서·검사 실행 파일은 G
 
 기존 Mac 프로젝트는 `/Users/sminsiik/Documents/Codex/Project/gnc-cooling` 아래의 `website/`에서 개발했습니다. 현재 Git 저장소는 그 웹 프로젝트를 루트로 사용합니다. 저장소 및 Ubuntu의 `/home/sminsik/projects`에서 기존 `outputs/` 검증 기록·계획 자료를 확인하지 못했으므로 해당 참조를 **자료 미포함, 원문 미확인**으로 표시합니다. 비슷한 이름의 문서로 원문 증빙을 대체하지 않습니다.
 
-현재 `package.json`의 HTTPS·검사 명령과 검사 서버는 저장소의 **상위 폴더**에 있는 `../.work/c-local/`을 참조합니다. 기존 문서의 `.work/c-local/` 표기는 Mac의 상위 프로젝트 루트 기준입니다. Ubuntu에서는 `/home/sminsik/projects/.work/c-local/`에 해당하지만 필요한 자료가 없습니다. 검사 서버의 ClamAV 경로도 macOS 패키지에 고정되어 있어 Linux 실행 경로 정비가 필요합니다.
+현재 HTTPS 명령은 저장소의 **상위 폴더**에 있는 `../.work/c-local/`을 참조합니다. 기존 문서의 `.work/c-local/` 표기는 Mac의 상위 프로젝트 루트 기준입니다. Ubuntu에서는 `/home/sminsik/projects/.work/c-local/`에 해당하지만 HTTPS·직원 자료는 없습니다. 파일 검사 명령은 2026-10-14부터 Mac은 기존 경로를 보존하고 Ubuntu는 저장소의 `.local-scanner/`를 사용합니다.
 
 `docs/` 내부의 구현·연결 계약 문서는 저장소에 있습니다. `outputs/` 원문 증빙, `.work/` 비공개 자료 및 백업은 저장소에 포함하지 않았습니다. 해당 자료 확보나 환경 구성은 별도 작업으로 진행합니다.
 

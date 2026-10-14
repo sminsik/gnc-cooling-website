@@ -17,7 +17,7 @@
     "auth:initial-local": "node scripts/initial-admin-local.mjs",
     "setup:check": "node scripts/check-mvp-c.mjs",
     "dev:https": "wrangler dev -c wrangler.jsonc -c dev/scanner/wrangler.jsonc --env c-local --local --ip 127.0.0.1 --port 8788 --inspector-port 9231 --local-protocol https --https-key-path ../.work/c-local/localhost.key --https-cert-path ../.work/c-local/localhost.crt --test-scheduled",
-    "scanner:local": "../.work/c-local/scanner-venv/bin/python dev/scanner/server.py",
+    "scanner:local": "node dev/scanner/run.mjs",
     "test:scanner-local": "node tests/local-scanner.mjs",
     "ui:build": "node scripts/build-ui.mjs"
   },

@@ -8,3 +8,4 @@ dist/
 .local-backups/
 .local-restore-tests/
 __pycache__/
+.local-scanner/

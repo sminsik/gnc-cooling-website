@@ -29,7 +29,7 @@ def inspect(source,output,mime,engine,database,certs):
         if not existing or (name=='daily.cvd' and time.time()-max(p.stat().st_mtime for p in existing)>172800):raise RuntimeError('definitions-unavailable')
     metadata={}
     def scan(path):
-        result=subprocess.run([str(engine),'--database='+str(database),'--cvdcertsdir='+str(certs),'--no-summary','--max-filesize=20M','--max-scansize=40M','--max-files=20','--max-recursion=10','--alert-exceeds-max=yes',str(path)],capture_output=True,timeout=25)
+        result=subprocess.run([str(engine),'--database='+str(database),*(['--cvdcertsdir='+str(certs)] if certs.is_dir() else []),'--no-summary','--max-filesize=20M','--max-scansize=40M','--max-files=20','--max-recursion=10','--alert-exceeds-max=yes',str(path)],capture_output=True,timeout=25)
         if result.returncode==1:raise Blocked()
         if result.returncode!=0:raise RuntimeError('malware-scan-failed')
     scan(source)
