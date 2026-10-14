@@ -1,0 +1,50 @@
+[
+  {
+    "key": "tower",
+    "name": "Evaporative Cooling Tower.jpg",
+    "author": "Saud",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Evaporative_Cooling_Tower.jpg",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Evaporative_Cooling_Tower.jpg/1280px-Evaporative_Cooling_Tower.jpg",
+    "label": "냉각탑",
+    "changes": "크기 최적화·메타데이터 제거; 화면 비율에 따라 잘라 표시",
+    "sha256": "e39b3cb6e9288dde5524d3da2c05c115bed536bab9cbfd6d42c9069e7cbe3e2c"
+  },
+  {
+    "key": "chiller",
+    "name": "Air Cooled Liquid Chiller.jpg",
+    "author": "Saud",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Air_Cooled_Liquid_Chiller.jpg",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Air_Cooled_Liquid_Chiller.jpg/1280px-Air_Cooled_Liquid_Chiller.jpg",
+    "label": "공랭식 칠러",
+    "changes": "크기 최적화·메타데이터 제거; 화면 비율에 따라 잘라 표시",
+    "sha256": "460d4c133994245f7653fc7c314fc27e51ef05e55037a46f79c5186d19ee6988"
+  },
+  {
+    "key": "piping",
+    "name": "Shell and Tube Heat Exchanger Piping 1.jpg",
+    "author": "Ivangiesen",
+    "license": "CC0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Shell_and_Tube_Heat_Exchanger_Piping_1.jpg",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/2/24/Shell_and_Tube_Heat_Exchanger_Piping_1.jpg",
+    "label": "열교환기 연결 배관",
+    "changes": "크기 최적화·메타데이터 제거; 화면 비율에 따라 잘라 표시",
+    "sha256": "ca0a1f15ee52fb55a9bf9846ef759987496c8f260e7846f60fe99b5b9ad2f53b"
+  },
+  {
+    "key": "plate",
+    "name": "Plate heat exchanger LS.JPG",
+    "author": "Armchoir",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/File:Plate_heat_exchanger_LS.JPG",
+    "source": "https://commons.wikimedia.org/wiki/File:Plate_heat_exchanger_LS.JPG",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/6/65/Plate_heat_exchanger_LS.JPG",
+    "label": "판형 열교환기",
+    "changes": "크기 최적화·메타데이터 제거; 화면 비율에 따라 잘라 표시",
+    "sha256": "ee45abfedb1017ecfca101c66afe103e5d2c20cee97b558dc85048b7453ffa26"
+  }
+]

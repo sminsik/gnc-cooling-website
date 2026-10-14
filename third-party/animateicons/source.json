@@ -1,0 +1,5 @@
+{
+  "repository": "https://github.com/Avijit07x/animateicons",
+  "commit": "6f1262f7733bb9fa2cca76fe8a4498dc777d46cf",
+  "adapter": "Static SVG + CSS motion for existing server-rendered HTML"
+}

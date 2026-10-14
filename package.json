@@ -3,14 +3,36 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "node --test tests/*.test.mjs",
     "dev": "wrangler dev --local --ip 127.0.0.1 --port 8787",
-    "check": "tsc --noEmit",
-    "build": "wrangler deploy --dry-run --outdir dist",
-    "db:local": "wrangler d1 migrations apply DB --local"
+    "check": "tsc --noEmit && tsc -p tsconfig.ui.json",
+    "build": "node scripts/build-ui.mjs && wrangler deploy --env='' --dry-run --outdir dist",
+    "db:local": "wrangler d1 migrations apply DB --local",
+    "auth:check": "node scripts/check-staff-auth.mjs",
+    "auth:initial-local": "node scripts/initial-admin-local.mjs",
+    "setup:check": "node scripts/check-mvp-c.mjs",
+    "dev:https": "wrangler dev -c wrangler.jsonc -c dev/scanner/wrangler.jsonc --env c-local --local --ip 127.0.0.1 --port 8788 --inspector-port 9231 --local-protocol https --https-key-path ../.work/c-local/localhost.key --https-cert-path ../.work/c-local/localhost.crt --test-scheduled",
+    "scanner:local": "../.work/c-local/scanner-venv/bin/python dev/scanner/server.py",
+    "test:scanner-local": "node tests/local-scanner.mjs",
+    "ui:build": "node scripts/build-ui.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "latest",
+    "@tailwindcss/cli": "^4.3.3",
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "esbuild": "^0.28.2",
+    "tailwindcss": "^4.3.3",
     "typescript": "latest",
     "wrangler": "latest"
+  },
+  "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "gsap": "^3.15.0",
+    "jose": "^6.2.12",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "swiper": "^14.3.0"
   }
 }

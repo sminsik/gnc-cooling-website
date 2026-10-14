@@ -1,0 +1,12 @@
+{
+  "website": "https://tween-ui.vercel.app/",
+  "repository": "https://github.com/StaticMania/tween-ui",
+  "downloadDate": "2026-10-13",
+  "components": [
+    "icon-trail-button",
+    "sliding-tabs",
+    "text-roll-button"
+  ],
+  "license": "MIT",
+  "changes": "React source retained; local cn import, company colors/fonts and style isolation; no original motion converted to CSS imitation"
+}
