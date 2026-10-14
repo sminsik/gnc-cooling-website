@@ -47,7 +47,7 @@ pnpm dev
 
 **환경별 상태를 구분합니다.** Mac의 2026-10-11 최신 기록에는 로컬 책임자 활성화와 실제 ClamAV 검사 검증이 남아 있습니다. Ubuntu의 2026-10-14 점검에서는 직원·초대·비밀번호·세션이 모두 0건이며, 인증 비밀 설정·HTTPS 인증서·검사 가상환경·ClamAV 자료는 준비되지 않았습니다. Mac의 로컬 계정·데이터·비밀값은 Git으로 옮겨지지 않습니다.
 
-2026-10-14 후속으로 [Mac·Ubuntu 로컬 파일 검사 환경](docs/local-scanner.md)을 준비했습니다. `pnpm scanner:local`은 Mac의 기존 경로와 Ubuntu의 프로젝트 전용 경로를 각각 지원합니다. 점검 당시의 검사 환경 미준비 기록은 이 후속 작업 전 상태입니다. `pnpm dev:https`는 여전히 Mac에서 준비한 별도 HTTPS·인증 자료를 전제로 하며 Ubuntu에서는 해당 선행 설정과 업무 검수가 남아 있습니다. 직원 시험 주소는 `https://localhost:8788/admin/login`입니다. 공개 HTTP 미리보기와 구분하며 고객 실제 접수 잠금은 유지합니다.
+2026-10-14 후속으로 [Mac·Ubuntu 로컬 파일 검사 환경](docs/local-scanner.md)과 [Ubuntu HTTPS·가상 직원·관리자 업로드 통합 검증](docs/local-https-demo.md)을 준비했습니다. `pnpm scanner:local`, `pnpm dev:https`는 Mac의 기존 경로를 보존하고 Ubuntu에서는 전용 경로를 사용합니다. 점검 당시 미준비 기록은 이 후속 작업 전 상태입니다. Ubuntu의 가상 직원·시연 콘텐츠는 별도 `.local-https/state/`에 있고 기존 `.wrangler/state/` 및 실제 책임자 계정과 구분합니다. 로그인 주소는 `https://localhost:8788/admin/login`이며 시연 홈페이지는 `https://localhost:8788/`입니다. 공개 HTTP 미리보기와 고객 실제 접수 잠금은 유지합니다.
 
 ## 구성
 

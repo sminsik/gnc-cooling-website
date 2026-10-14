@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,writeFile,rm} from 'node:fs/promises';
+import {mkdtemp,writeFile,readFile,mkdir,rm} from 'node:fs/promises';
+import {DatabaseSync} from 'node:sqlite';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {checkMvpC} from '../scripts/check-mvp-c.mjs';
@@ -20,5 +21,19 @@ test('connection report is read-only, redacts secrets and never claims a declara
   const report=await checkMvpC(root);assert.equal(report.readOnly,true);assert.equal(report.items[0].state,'configured');assert.equal(report.items[1].state,'declared');assert.equal(report.items[2].state,'database-unavailable');
   for(const value of ['private-client','private-secret','private-service','https://identity.example'])assert.equal(JSON.stringify(report).includes(value),false);
   await writeFile(join(root,'.dev.vars'),'APP_ORIGIN=http://invalid.example');const missing=await checkMvpC(root);assert.equal(missing.items[0].state,'missing');
+ }finally{await rm(root,{recursive:true,force:true});}
+});
+test('read-only readiness report selects the explicit isolated persist root, leaving default state unavailable',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'gnc-isolated-report-'));
+ try{
+  await writeFile(join(root,'.dev.vars.c-local'),'STAFF_AUTH_MODE=password\nAPP_ORIGIN=https://localhost:8788\nSTAFF_AUTH_RATE_SECRET='+ 'x'.repeat(32));
+  await writeFile(join(root,'wrangler.jsonc'),JSON.stringify({env:{'c-local':{services:[{binding:'FILE_SCANNER',service:'local-fixture'}]}}}));
+  const persist=join(root,'isolated'),dir=join(persist,'v3/d1/miniflare-D1DatabaseObject');await mkdir(dir,{recursive:true});
+  const file=join(dir,'abcdef.sqlite'),db=new DatabaseSync(file);
+  db.exec("CREATE TABLE staff(id TEXT,status TEXT); CREATE TABLE staff_roles(staff_id TEXT,role TEXT); CREATE TABLE staff_bootstrap(id TEXT); CREATE TABLE file_jobs(completed_at INTEGER); INSERT INTO staff VALUES('fixture','active'); INSERT INTO staff_roles VALUES('fixture','admin');");db.close();
+  const before=await readFile(file);
+  assert.equal((await checkMvpC(root,'c-local')).items[2].state,'database-unavailable');
+  const report=await checkMvpC(root,'c-local',persist);assert.equal(report.items[2].state,'active');assert.equal(report.items[2].activeCount,1);
+  assert.deepEqual(await readFile(file),before);assert.equal(JSON.stringify(report).includes('local-fixture'),false);
  }finally{await rm(root,{recursive:true,force:true});}
 });

@@ -9,3 +9,4 @@ dist/
 .local-restore-tests/
 __pycache__/
 .local-scanner/
+.local-https/
