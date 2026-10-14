@@ -11,5 +11,7 @@ __pycache__/
 .local-scanner/
 .local-https/
 .cloudflare-plan/
+.cloudflare-backups/
+.cloudflare-restore-tests/
 configs/wrangler.development.jsonc
 configs/wrangler.production.jsonc
