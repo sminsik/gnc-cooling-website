@@ -63,7 +63,7 @@ pnpm dev
 
 [개발 D1 마이그레이션 검토·적용·검증](docs/development-d1-migrations.md): 격리 로컬·원격 전체 스키마 비교, 이력 12건·미적용 0건·무결성 확인과 재점검 명령을 기록했습니다.
 
-[개발 미리보기 배포 준비](docs/development-preview.md): 실제 개발 D1·R2 바인딩의 dry-run과 Access 기반 접근 제한·업무 기능 잠금·연결 확인·로그·롤백 절차를 준비했습니다. 실배포와 URL/Access 활성화는 아직 하지 않았습니다.
+[개발 미리보기 배포 준비](docs/development-preview.md): 실제 개발 D1·R2 바인딩의 dry-run과 Access 기반 접근 제한·업무 기능 잠금·연결 확인·로그·롤백 절차를 준비했습니다. 후속 승인으로 개발 Worker를 재배포하고 Access로 보호된 workers.dev 주소를 활성화했습니다. 비로그인/위조 요청 78개의 로그인 이동을 확인했으며 OTP 브라우저 로그인은 사용자 확인을 기다립니다.
 
 ## 개발과 공개 순서
 

@@ -7,8 +7,12 @@ const root=resolve(import.meta.dirname,'..');
 const path=resolve(root,'configs/wrangler.development.jsonc');
 const config=JSON.parse(readFileSync(path,'utf8'));
 const template=JSON.parse(readFileSync(resolve(root,'configs/wrangler.development.example.jsonc'),'utf8'));
+const protectedUrl=process.argv.includes('--protected-url');
+assert.equal(config.workers_dev,protectedUrl,'Use --protected-url only for the approved active development URL.');
+if(protectedUrl){assert.ok(config.vars.ACCESS_TEAM_DOMAIN);assert.ok(config.vars.ACCESS_AUD&&!config.vars.ACCESS_AUD.startsWith('REPLACE_'));}
 assert.match(config.account_id,/^[a-f0-9]{32}$/);assert.match(config.d1_databases[0].database_id,/^[a-f0-9-]{36}$/);
 const policy=structuredClone(config);policy.account_id=template.account_id;policy.d1_databases[0].database_id=template.d1_databases[0].database_id;
+policy.workers_dev=template.workers_dev;
 // Access values may be supplied after approval; the worker rejects missing values.
 for(const field of ['ACCESS_TEAM_DOMAIN','ACCESS_AUD'])policy.vars[field]=template.vars[field];
 assert.deepEqual(policy,template,'Actual development config violates closed preview policy.');
@@ -19,4 +23,4 @@ const generated=resolve(work,'wrangler.json');writeFileSync(generated,JSON.strin
 const env={...process.env,WRANGLER_SEND_METRICS:'false'};for(const n of ['CLOUDFLARE_API_TOKEN','CLOUDFLARE_API_KEY','CLOUDFLARE_EMAIL','CLOUDFLARE_ACCOUNT_ID'])delete env[n];
 const r=spawnSync(process.execPath,[resolve(root,'node_modules/wrangler/bin/wrangler.js'),'deploy','--config',generated,'--env=','--dry-run','--outdir',resolve(work,'bundle')],{cwd:root,env,encoding:'utf8',timeout:60000});
 assert.equal(r.status,0,'Development dry-run failed; raw output suppressed.');
-console.log(JSON.stringify({ok:true,dryRun:true,worker:config.name,d1:config.d1_databases[0].database_name,r2:config.r2_buckets[0].bucket_name,publicUrlsEnabled:false,accessConfigured:!!config.vars.ACCESS_TEAM_DOMAIN&&!!config.vars.ACCESS_AUD}));
+console.log(JSON.stringify({ok:true,dryRun:true,worker:config.name,d1:config.d1_databases[0].database_name,r2:config.r2_buckets[0].bucket_name,workersDevConfigured:config.workers_dev,previewUrlsConfigured:false,accessConfigured:!!config.vars.ACCESS_TEAM_DOMAIN&&!!config.vars.ACCESS_AUD}));
