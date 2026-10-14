@@ -1,0 +1,23 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "gnc-cooling-production",
+  "account_id": "REPLACE_WITH_APPROVED_PRODUCTION_ACCOUNT_ID",
+  "main": "../src/index.ts",
+  "compatibility_date": "2026-10-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [],
+  "triggers": {"crons": []},
+  "observability": {"enabled": false},
+  "assets": {"directory": "../public", "binding": "ASSETS", "run_worker_first": true},
+  "vars": {"STAFF_AUTH_MODE": "", "APP_ORIGIN": "", "INQUIRY_INTAKE_ENABLED": "", "CUSTOMER_ORIGIN": ""},
+  "services": [],
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "gnc-cooling-production",
+    "database_id": "REPLACE_WITH_APPROVED_PRODUCTION_D1_UUID",
+    "migrations_dir": "../migrations"
+  }],
+  "r2_buckets": [{"binding": "FILES", "bucket_name": "gnc-cooling-production-files"}]
+}

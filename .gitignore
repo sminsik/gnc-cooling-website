@@ -10,3 +10,6 @@ dist/
 __pycache__/
 .local-scanner/
 .local-https/
+.cloudflare-plan/
+configs/wrangler.development.jsonc
+configs/wrangler.production.jsonc
