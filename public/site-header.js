@@ -56,3 +56,39 @@ document.querySelectorAll('.project-gallery').forEach(gallery=>{
  buttons.forEach((button,i)=>button.addEventListener('click',()=>track.scrollBy({left:(i?1:-1)*((track.querySelector('.project-gallery-card')?.getBoundingClientRect().width||300)+16),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})));
  track.addEventListener('scroll',update);window.addEventListener('resize',update);update();
 });
+
+// Shared floating control. Hidden at the top and while mobile navigation is open.
+(() => {
+ const button=document.querySelector('.site-back-to-top');if(!button)return;
+ let queued=false;
+ const update=()=>{button.hidden=window.scrollY<320;queued=false;};
+ window.addEventListener('scroll',()=>{if(!queued){queued=true;requestAnimationFrame(update);}},{passive:true});
+ window.addEventListener('pageshow',update);update();
+ button.addEventListener('click',()=>{
+  if(document.activeElement===button){const target=document.querySelector('h1')||document.querySelector('main');if(target){target.setAttribute('tabindex','-1');target.focus({preventScroll:true});}}
+  window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+ });
+})();
+
+// Product categories switch locally without reloading or moving the viewport.
+(() => {
+ const nav=document.querySelector('.catalog-nav');if(!nav)return;
+ const panels=[...document.querySelectorAll('[data-catalog-category]')];
+ const links=[...nav.querySelectorAll('a')];
+ const empty=document.querySelector('.catalog-empty');
+ const apply=()=>{
+  const category=new URLSearchParams(location.search).get('category')||'';
+  panels.forEach(panel=>{panel.hidden=!!category&&panel.dataset.catalogCategory!==category;});
+  links.forEach(link=>{const selected=(new URL(link.href).searchParams.get('category')||'')===category;if(selected)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
+  if(empty)empty.hidden=panels.some(panel=>!panel.hidden);
+  const current=document.querySelector('.ui-location-select:last-child summary [aria-current]');
+  if(current)current.textContent=links.find(link=>link.hasAttribute('aria-current'))?.textContent.replace(/ALL PRODUCTS|COOLING TOWERS|CHILLERS|HEAT EXCHANGERS/g,'').trim()||'전체 제품';
+ };
+ nav.addEventListener('click',event=>{
+  const link=event.target.closest('a');if(!link||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+  event.preventDefault();
+  const url=new URL(link.href);const q=new URLSearchParams(location.search).get('q');if(q)url.searchParams.set('q',q);
+  history.pushState(null,'',url);apply();
+ });
+ window.addEventListener('popstate',apply);
+})();

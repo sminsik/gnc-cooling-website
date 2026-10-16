@@ -1,3 +1,4 @@
+import {catalogListing,catalogDetail} from './product-pages.ts';
 import {styleGuidePage} from './style-guide.ts';
 import {isDevelopmentPreview,previewGate,identifyPreview} from './development-preview.ts';
 import type {PreviewEnv} from './development-preview.ts';
@@ -53,11 +54,13 @@ const application = {
     return head(json({ok:true,database:'connected',files:'connected'}));
    }
    if(path==='/api/products'||path==='/products') {
+    if(!isApi)return head(catalogListing(url.searchParams));
     const result=await listProducts(env.DB,url.searchParams);
-    return head(isApi?json(result):productListPage(result));
+    return head(json(result));
    }
    const detail=path.match(/^\/(api\/)?products\/([^/]+)$/);
    if(detail) {
+    if(!isApi){const page=await catalogDetail(env.DB,detail[2]);if(page)return head(page);}
     const product=await productDetail(env.DB,detail[2]);
     return head(product?(isApi?json(product):productDetailPage(product)):(isApi?json({code:'NOT_FOUND',error:'제공할 수 없는 제품입니다.'},404):publicError('/products',404,'현재 제공할 수 없는 제품입니다. 제품 목록에서 공개된 제품을 확인해주세요.')));
    }
@@ -68,7 +71,8 @@ const application = {
    if(path==='/')return head(homePage(await homeContent(env.DB)));
    const page=staticContent(path)||placeholderPage(path);
    if(page)return head(page);
-   if(path==='/home-products.js'||path==='/tween-ui.js'||path==='/tween-ui.css'||path==='/animated-icons.css'||path==='/site-ui.css'||path==='/site-header.js'||path==='/site-theme.css'||path==='/admin-theme.css'||path.startsWith('/generated/')||path.startsWith('/reference/')||path.startsWith('/brand/')||path.startsWith('/fonts/')||path==='/header.js'||path==='/ui-guide.css'||path==='/style.css'||path==='/admin.js'||path==='/inquiry.js')return head(await env.ASSETS.fetch(request));
+   if(path.startsWith('/product-media/'))return head(await env.ASSETS.fetch(request));
+   if(path==='/certifications.js'||path.startsWith('/certificates/')||path==='/history-scroll.js'||path==='/home-products.js'||path==='/tween-ui.js'||path==='/tween-ui.css'||path==='/animated-icons.css'||path==='/site-ui.css'||path==='/site-header.js'||path==='/site-theme.css'||path==='/admin-theme.css'||path.startsWith('/generated/')||path.startsWith('/reference/')||path.startsWith('/brand/')||path.startsWith('/fonts/')||path==='/header.js'||path==='/ui-guide.css'||path==='/style.css'||path==='/admin.js'||path==='/inquiry.js')return head(await env.ASSETS.fetch(request));
    return head(publicError('/',404,'주소를 확인하거나 메뉴에서 원하는 페이지로 이동해주세요.'));
   }catch(error) {
    const status=error instanceof CatalogInputError?400:503;

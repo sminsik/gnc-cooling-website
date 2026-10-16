@@ -5,6 +5,7 @@ import { cookie, randomToken } from './staff-session.ts';
 import type { StaffPrincipal } from './staff-session.ts';
 import type { ContentType } from './content-admin.ts';
 export const titles:Record<ContentType,string>={products:'제품',projects:'시공 사례',resources:'자료',notices:'공지사항'};
+const catalogNotice='<aside class="catalog-management-note"><h2>제품 카탈로그와 DB 보관 자료</h2><p>공개 제품은 src/product-data.ts와 관련 파일에서 관리합니다. 이 화면의 저장·공개 작업은 현재 공개 제품 목록에 반영되지 않습니다. 기존 DB 제품·모델·사진은 계속 관리할 수 있습니다.</p><a href="/products">공개 제품 목록 확인 ↗</a></aside>';
 const statuses:Record<string,string>={draft:'작성 중',published:'공개',hidden:'숨김'};
 export function adminPage(title:string,body:string,staff:StaffPrincipal|null,status=200):Response {
  const nav=staff?staffMenu(staff).map(item=>`<a href="${e(item.path)}">${e(item.label)}</a>`).join(''):'';
@@ -31,7 +32,7 @@ export function contentListPage(type:ContentType,rows:Record<string,unknown>[],s
  const params=(page:number)=>new URLSearchParams({q:result.q,status:result.status,deleted:result.deleted?'1':'0',page:String(page)});
  const filters=`<form class="search" action="/admin/${type}"><label for="content-q">이름 검색</label><input id="content-q" name="q" maxlength="100" value="${e(result.q)}"><label for="content-status">공개 상태</label><select id="content-status" name="status"><option value="">전체</option>${Object.entries(statuses).map(([value,label])=>`<option value="${value}" ${result.status===value?'selected':''}>${label}</option>`).join('')}</select>${canAccess(staff,'delete_restore')?`<label><input type="checkbox" name="deleted" value="1" ${result.deleted?'checked':''}>삭제된 항목</label>`:''}<button>검색</button></form>`;
  const pagination=`<nav class="pagination">${result.page>1?`<a href="?${e(params(result.page-1))}">이전</a>`:''}<span>${result.page}페이지 · ${result.total}개</span>${result.page*20<result.total?`<a href="?${e(params(result.page+1))}">다음</a>`:''}</nav>`;
- return adminPage(titles[type]+' 관리',`<div class="related"><a href="/admin/${type}/new">${titles[type]} 등록</a>${type==='products'?'<a href="/admin/categories">제품군 관리</a>':''}</div><p>작성 중 저장 후 내용을 확인하고 공개합니다.</p>${filters}${rows.length?`<div class="table-scroll"><table><thead><tr><th>이름</th><th>상태</th><th>수정일</th></tr></thead><tbody>${rows.map(row=>`<tr><td><a href="/admin/${type}/${encodeURIComponent(String(row.id))}">${e(row.name||row.title)}</a></td><td>${e(statuses[String(row.publication_status)])}</td><td>${e(row.updated_at)}</td></tr>`).join('')}</tbody></table></div>`:'<p>등록된 항목이 없습니다.</p>'}${pagination}`,staff);
+ return adminPage(titles[type]+' 관리',`${type==='products'?catalogNotice:'<aside class="admin-workflow">① 작성 내용 저장 → ② 사진·PDF 첨부 및 검사 → ③ 미리보기 확인 → ④ 공개<br>공개 전 회사 자료와 게시 범위를 확인해주세요. 개발 예시 항목은 공개 사이트에서 제외됩니다.</aside>'}<div class="related"><a href="/admin/${type}/new">${titles[type]} 등록</a>${type==='products'?'<a href="/admin/categories">제품군 관리</a>':''}</div><p>작성 중 저장 후 내용을 확인하고 공개합니다.</p>${filters}${rows.length?`<div class="table-scroll"><table><thead><tr><th>이름</th><th>상태</th><th>수정일</th></tr></thead><tbody>${rows.map(row=>`<tr><td><a href="/admin/${type}/${encodeURIComponent(String(row.id))}">${e(row.name||row.title)}</a></td><td>${e(statuses[String(row.publication_status)])}</td><td>${e(row.updated_at)}</td></tr>`).join('')}</tbody></table></div>`:'<p>등록된 항목이 없습니다.</p>'}${pagination}`,staff);
 }
 export async function contentEditor(db:D1Database,type:ContentType,row:Record<string,unknown>|null,staff:StaffPrincipal):Promise<Response> {
  const id=row?.id as string|undefined;
@@ -51,7 +52,7 @@ export async function contentEditor(db:D1Database,type:ContentType,row:Record<st
   const files=id?await fileRows(db,type,id):[],ready=files.filter(f=>f.status==='ready'),isPhoto=type==='projects',name=isPhoto?'image_id':'file_id',selected=isPhoto?data.primary_file_id:data.file_id;
   fields+=`<label>${isPhoto?'대표 사진':'공개 PDF 파일'}<select name="${name}"><option value="">미지정</option>${ready.map(f=>`<option value="${e(f.id)}" ${selected===f.id?'selected':''}>${e(f.original_name)}</option>`).join('')}</select></label>`;
  }
- let body=`<p>상태: ${e(statuses[String(data.publication_status||'draft')])}</p>`+formStart('/api/admin/'+type+(id?'/'+encodeURIComponent(id):''),staff,data.version)+`<input type="hidden" name="saveMethod" value="${id?'PATCH':'POST'}">`+fields+formEnd('작성 내용 저장');
+ let body=(type==='products'?catalogNotice:'<aside class="admin-workflow">내용 저장 후 첨부파일을 등록하세요. 검사가 끝난 사진·PDF를 선택하여 다시 저장한 뒤 미리보기와 공개를 진행합니다. 시공 사례는 공개 확인자·확인일과 대표 사진, 자료는 PDF가 필요합니다.</aside>')+`<p>상태: ${e(statuses[String(data.publication_status||'draft')])}</p>`+formStart('/api/admin/'+type+(id?'/'+encodeURIComponent(id):''),staff,data.version)+`<input type="hidden" name="saveMethod" value="${id?'PATCH':'POST'}">`+fields+formEnd('작성 내용 저장');
  if(id) {
   body+=await fileEditor(db,type,id,staff,Number(data.version));
   body+=`<section class="admin-actions"><a href="/admin/${type}/${encodeURIComponent(id)}/preview">미리보기</a>${publicationForms(type,id,data.version,staff)}</section>`;

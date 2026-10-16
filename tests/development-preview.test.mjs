@@ -60,7 +60,7 @@ test('style guide and referenced assets work only locally or behind verified dev
    if(method==='GET'){
     const html=await r.text();assert.ok(html.includes('Style Guide'));
     const paths=[...html.matchAll(/(?:src|href)="(\/[^"#]+)"/g)].map(m=>m[1]).filter(p=>/\.(css|js|png|svg|webp|woff2?|ttf)$/.test(p));
-    assert.ok(paths.includes('/ui-guide.css'));assert.ok(paths.includes('/tween-ui.js'));
+    for(const asset of ['/site-ui.css','/site-theme.css','/site-header.js','/tween-ui.js'])assert.ok(paths.includes(asset),asset);
     for(const path of new Set(paths))assert.equal((await worker.fetch(request(path,signed),bindings)).status,200,path);
    }else assert.equal(await r.text(),'');
   }

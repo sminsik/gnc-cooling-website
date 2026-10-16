@@ -47,3 +47,9 @@ document.addEventListener('submit',async event=>{
  try{const response=await fetch(form.action,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},body:new URLSearchParams(new FormData(form))});const payload=await response.json();if(!response.ok)throw Error(payload.error||'로그인을 시작하지 못했습니다.');const url=new URL(payload.authorizationUrl);if(url.protocol!=='https:')throw Error('로그인 설정을 확인해주세요.');location.assign(url.href);}
  catch(error){result.textContent=error.message;button.disabled=false;}
 });
+
+// Keep the current workspace visible on both desktop and narrow screens.
+document.querySelectorAll('.admin-nav a').forEach(link=>{
+ const path=new URL(link.href).pathname;
+ if(location.pathname===path||location.pathname.startsWith(path+'/'))link.setAttribute('aria-current','page');
+});

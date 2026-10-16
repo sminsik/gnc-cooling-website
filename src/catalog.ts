@@ -1,3 +1,4 @@
+import {catalogProducts} from './product-data.ts';
 export interface CatalogEnv { DB: D1Database; FILES: R2Bucket }
 export interface Category { id: string; name: string; parent_id: string | null }
 export interface Product {
@@ -43,6 +44,8 @@ export async function listProducts(db: D1Database, params: URLSearchParams): Pro
  return {items,categories,total:count?.total || 0,page,pageSize,q,category};
 }
 export async function productDetail(db: D1Database,id: string): Promise<ProductDetail | null> {
+ const local=catalogProducts.find(p=>p.id===id);
+ if(local)return {id:local.id,name:local.name,intro:local.intro,description:local.description,category_id:local.category,category_name:local.categoryName,image_id:'',image_alt:local.name,models:local.models.map((row,i)=>({id:local.id+'-'+i,name:row[0],description:'',availability:'reference',specifications:row.slice(1).map((v,j)=>({name:local.headers[j+1],value_text:v,unit:''}))})),images:[]};
  const product=await db.prepare(`${categoryTree} SELECT ${fields} ${publicProduct} AND p.id=?`).bind(id).first<Product>();
  if(!product) return null;
  const raw=(await db.prepare(`SELECT id,name,description,availability FROM product_models m WHERE product_id=? AND publication_status='published' AND deleted_at IS NULL AND length(trim(name))>0 AND EXISTS(SELECT 1 FROM model_specifications s WHERE s.model_id=m.id AND length(trim(s.name))>0 AND length(trim(s.value_text))>0) ORDER BY CASE availability WHEN 'available' THEN 0 ELSE 1 END,sort_order,id`).bind(id).all<Omit<Model,'specifications'>>()).results;

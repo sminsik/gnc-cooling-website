@@ -307,8 +307,8 @@ export default function RatingCarousel({
               onClick={() => goTo(index)}
               className={cn(
                 'size-2 cursor-pointer rounded-full transition-colors motion-reduce:transition-none',
-                'focus-visible:ring-2 focus-visible:ring-[#0084a6] focus-visible:ring-offset-2 focus-visible:ring-offset-[#045f64] focus-visible:outline-none',
-                index === activeIndex ? 'bg-[#0084a6]' : 'bg-white/35 hover:bg-white/70'
+                'focus-visible:ring-2 focus-visible:ring-[#153d43] focus-visible:ring-offset-2 focus-visible:ring-offset-[#045f64] focus-visible:outline-none',
+                index === activeIndex ? 'bg-[#153d43]' : 'bg-white/35 hover:bg-white/70'
               )}
             />
           ))}

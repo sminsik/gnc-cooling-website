@@ -20,7 +20,7 @@
       "vars": {"STAFF_AUTH_MODE":"password", "APP_ORIGIN":"https://localhost:8788"},
       "d1_databases": [{"binding":"DB","database_name":"gnc-cooling-local","database_id":"00000000-0000-0000-0000-000000000001","migrations_dir":"migrations"}],
       "r2_buckets": [{"binding":"FILES","bucket_name":"gnc-cooling-local-files"}],
-      "services": [{"binding":"FILE_SCANNER","service":"gnc-local-scanner"}]
+      "services": [{"binding":"FILE_SCANNER","service":"gnc-local-scanner"},{"binding":"INQUIRY_MAILER","service":"gnc-local-mailer"},{"binding":"INQUIRY_MAIL_STATUS","service":"gnc-local-mailer"}]
     }
   }
 }

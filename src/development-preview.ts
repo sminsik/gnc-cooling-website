@@ -7,6 +7,10 @@ export const isDevelopmentPreview=(env:PreviewEnv)=>env.DEPLOYMENT_ENVIRONMENT==
 const denied=(status:number)=>Response.json({code:status===503?'SERVICE_UNAVAILABLE':'ACCESS_DENIED',error:'현재 이용할 수 없습니다.'},{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','X-Robots-Tag':'noindex, nofollow'}});
 // The resolver parameter is only a unit-test seam; production uses the configured Access JWKS.
 export async function previewGate(request:Request,env:PreviewEnv,resolver?:JWTVerifyGetKey):Promise<Response|null>{
+ // 로컬 개발: Access 인증을 적용하지 않는다. 로컬 wrangler 설정에는
+ // DEPLOYMENT_ENVIRONMENT=development를 지정하지 않으며 직원 DB 인증은 유지한다.
+ // Cloudflare 비공개 개발 배포 전: development 설정과 Access 도메인/AUD,
+ // 미인증 차단을 반드시 검수한다. 공유 인증 호출 전체를 주석 처리하지 않는다.
  if(!isDevelopmentPreview(env))return null;
  const domain=env.ACCESS_TEAM_DOMAIN||'',aud=env.ACCESS_AUD||'';
  if(!/^[a-z0-9-]+\.cloudflareaccess\.com$/.test(domain)||!aud||aud.startsWith('REPLACE_'))return denied(503);

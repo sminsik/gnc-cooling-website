@@ -19,7 +19,10 @@
     "dev:https": "node scripts/run-local-https.mjs",
     "scanner:local": "node dev/scanner/run.mjs",
     "test:scanner-local": "node tests/local-scanner.mjs",
-    "ui:build": "node scripts/build-ui.mjs"
+    "ui:build": "node scripts/build-ui.mjs",
+    "dev:design": "node scripts/dev-design.mjs",
+    "check:local": "node scripts/check-local.mjs",
+    "dev:local": "node scripts/start-local.mjs"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "latest",

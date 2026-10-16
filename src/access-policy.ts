@@ -18,7 +18,7 @@ export function canAccess(staff: StaffAccess | null, permission: Permission): bo
 const menuDefinitions = [
   { label: '관리 현황', path: '/admin/dashboard', permission: 'inquiries' },
   { label: '문의 관리', path: '/admin/inquiries', permission: 'inquiries' },
-  { label: '제품 관리', path: '/admin/products', permission: 'content' },
+  { label: '제품 DB 보관 자료', path: '/admin/products', permission: 'content' },
   { label: '시공 사례 관리', path: '/admin/projects', permission: 'content' },
   { label: '자료 관리', path: '/admin/resources', permission: 'content' },
   { label: '공지사항 관리', path: '/admin/notices', permission: 'content' },

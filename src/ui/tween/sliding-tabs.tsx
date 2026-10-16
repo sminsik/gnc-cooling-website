@@ -181,7 +181,7 @@ export default function SlidingTabs({
       <div
         ref={indicatorRef}
         data-nav-indicator
-        className="pointer-events-none absolute origin-center rounded-md bg-[#0084a6] motion-reduce:transition-none"
+        className="pointer-events-none absolute origin-center rounded-md bg-[#153d43] motion-reduce:transition-none"
         aria-hidden="true"
       />
       {items.map((item) => {

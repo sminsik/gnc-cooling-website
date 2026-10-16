@@ -204,11 +204,11 @@ export default function IconTrailButton({
       data-btn-icon-slide
       data-icon-state={iconState}
       className={cn(
-        'group relative inline-flex h-12 origin-center cursor-pointer items-center overflow-hidden rounded-full bg-[#111111] p-1 text-white shadow-[0_1px_1px_rgba(16,24,40,0.16)] transition-[scale] duration-[280ms] ease-[cubic-bezier(0.32,0.72,0,1)] outline-none select-none focus-visible:ring-2 focus-visible:ring-[#0084a6] not-disabled:active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none motion-reduce:active:scale-100',
+        'group relative inline-flex h-12 origin-center cursor-pointer items-center overflow-hidden rounded-full bg-[#111111] p-1 text-white shadow-[0_1px_1px_rgba(16,24,40,0.16)] transition-[scale] duration-[280ms] ease-[cubic-bezier(0.32,0.72,0,1)] outline-none select-none focus-visible:ring-2 focus-visible:ring-[#153d43] not-disabled:active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none motion-reduce:active:scale-100',
         className
       )}
     >
-      <span className="absolute inset-y-1 left-1 z-10 w-13 overflow-hidden rounded-full bg-[#0084a6] text-white shadow-[0_53px_15px_0_rgba(0,1,15,0),0_34px_14px_0_rgba(0,1,15,0.03),0_19px_11px_0_rgba(0,1,15,0.09),0_8px_8px_0_rgba(0,1,15,0.15),0_2px_5px_0_rgba(0,1,15,0.18)] transition-[width,left] duration-[500ms] ease-[cubic-bezier(0.32,0.72,0,1)] group-data-[icon-state=expand]:w-[calc(100%-8px)] group-data-[icon-state=expand]:duration-[640ms] group-data-[icon-state=park]:left-[calc(100%-3.25rem-0.25rem)] motion-reduce:transition-none">
+      <span className="absolute inset-y-1 left-1 z-10 w-13 overflow-hidden rounded-full bg-[#153d43] text-white shadow-[0_53px_15px_0_rgba(0,1,15,0),0_34px_14px_0_rgba(0,1,15,0.03),0_19px_11px_0_rgba(0,1,15,0.09),0_8px_8px_0_rgba(0,1,15,0.15),0_2px_5px_0_rgba(0,1,15,0.18)] transition-[width,left] duration-[500ms] ease-[cubic-bezier(0.32,0.72,0,1)] group-data-[icon-state=expand]:w-[calc(100%-8px)] group-data-[icon-state=expand]:duration-[640ms] group-data-[icon-state=park]:left-[calc(100%-3.25rem-0.25rem)] motion-reduce:transition-none">
         <ButtonIconSlideTrail iconClassName="fill-[#045f64]" />
       </span>
       <span

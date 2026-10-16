@@ -107,9 +107,10 @@ test('all 12 static pages and six menus render, with accessible mobile menu and 
  assert.equal((await request('/missing')).status,404);assert.equal((await request('/products','POST')).status,405);
  assert.equal(await(await request('/products','HEAD')).text(),'');sql.close();
 });
-test('empty result and actual DB failure are distinguishable, never displayed as successful zero',async()=>{
- const {sql,env,request}=setup();const empty=await(await request('/products')).text();assert.ok(empty.includes('공개 제품을 준비 중입니다'));
+test('file-managed product pages remain readable on DB failure; DB API still reports failures',async()=>{
+ const {sql,env,request}=setup();const html=await(await request('/products')).text();assert.ok(html.includes('대향류 사각 냉각탑'));assert.ok(html.includes('/product-media/'));
  env.DB={prepare(){throw new Error('secret SQL details')}};
- const response=await request('/products');assert.equal(response.status,503);const html=await response.text();assert.ok(html.includes('다시 시도'));assert.equal(html.includes('secret SQL'),false);
+ assert.equal((await request('/products')).status,200);
+ const detail=await request('/products/closed-circuit');assert.equal(detail.status,200);assert.equal((await detail.text()).includes('secret SQL'),false);
  assert.equal((await request('/api/products')).status,503);sql.close();
 });

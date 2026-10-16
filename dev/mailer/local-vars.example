@@ -1,0 +1,6 @@
+# Cloudflare Email Service. Fill privately in .dev.vars.c-local. No DNS changes by this app.
+CF_EMAIL_API_TOKEN=
+CF_EMAIL_ACCOUNT_ID=
+MAIL_FROM=
+MAIL_TEST_TO=
+MAIL_LINK_ORIGIN=https://localhost:8788

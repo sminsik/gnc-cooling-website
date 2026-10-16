@@ -1,0 +1,14 @@
+import {conceptIntro} from './concept-intro.ts';
+import {animatedIcon} from './animated-icons.ts';
+export function businessOverview(){
+ const services=[
+  {n:'01',label:'COOLING TOWERS',title:'냉각탑 제작·설치',body:'순환수량과 입·출구 수온, 외기 조건을 바탕으로 냉각탑을 선정합니다. 설치 공간과 정비 동선을 검토하고 제작·설치와 시운전까지 연결합니다.',tags:['원형·직교류·사각 냉각탑','기종 선정·제작·설치'],url:'/business/cooling-tower-installation',icon:'building-2' as const},
+  {n:'02',label:'MAINTENANCE',title:'냉각탑 보수',body:'냉각 성능 저하와 진동·소음의 원인을 운전 조건과 함께 살펴봅니다. 충진재·팬·감속기와 살수 계통을 확인해 필요한 교체·보수 범위를 정리합니다.',tags:['충진재·팬·감속기','점검·교체·보수'],url:'/business/cooling-tower-repair',icon:'wrench' as const},
+  {n:'03',label:'FACTORY PIPING',title:'공장 배관',body:'사출기와 공장 설비의 공급·환수 흐름을 파악하고 재질·관경·연결 방식을 검토합니다. 배관 시공 후에는 누설과 유량, 운전 상태를 확인합니다.',tags:['사출기·공장 배관','신규 연결·배관 시공'],url:'/business/factory-piping',icon:'network' as const},
+  {n:'04',label:'COOLING SYSTEMS',title:'냉각시스템 설계·적용',body:'공정에 필요한 온도와 유량에서 출발해 냉각탑·칠러·열교환기, 펌프와 배관을 함께 검토합니다. 장비 간 연결과 부하 변화를 고려해 구성을 제안합니다.',tags:['칠러·열교환기','설비 구성·기술 상담'],url:'/business/cooling-system',icon:'package' as const},
+ ];
+ return conceptIntro('OUR BUSINESS',['현장의 조건을 살피고,','필요한 냉각을 연결합니다.'],'냉각 설비부터 배관과 유지관리까지, 현장에 맞는 기술을 제안합니다.','/generated/business-intro-v2.png','냉각탑과 칠러, 연결 배관을 표현한 옅은 청록색 일러스트')+`
+ <section class="business-fields" aria-label="주요 사업분야"><div class="business-fields-grid">${services.map(v=>`<a class="business-field" href="${v.url}"><figure class="business-field-art"><img src="/generated/business-${v.url.split('/').pop()}-v1.png" alt="${v.title} 일러스트" width="1536" height="1024" loading="lazy"></figure><div class="business-field-copy"><div class="business-field-top"><span>${v.n} / ${v.label}</span></div><h2>${v.title}</h2><p>${v.body}</p><ul>${v.tags.map(t=>`<li>${t}</li>`).join('')}</ul><span class="business-field-more">분야 자세히 보기 ${animatedIcon('arrow-up-right')}</span></div></a>`).join('')}</div></section>
+ <section class="business-considerations" aria-labelledby="business-considerations-title"><div><p class="eyebrow">WHAT WE CONSIDER</p><h2 id="business-considerations-title">장비의 사양과<br>현장의 조건을 함께.</h2></div><dl><div><dt>온도와 유량</dt><dd>필요한 냉각수 온도와 순환수량, 부하 변화를 바탕으로 설비를 검토합니다.</dd></div><div><dt>설치와 연결</dt><dd>공간·반입 동선·배관 연결과 기존 설비의 활용 가능성을 살펴봅니다.</dd></div><div><dt>수질과 유지관리</dt><dd>오염·막힘·부식과 부품 교체를 위한 접근성을 함께 확인합니다.</dd></div><div><dt>운전과 기록</dt><dd>시운전과 조치 전후의 온도·유량·진동 기록으로 설비 상태를 확인합니다.</dd></div></dl></section>
+ <section class="business-flow" aria-labelledby="business-flow-title"><div class="business-flow-heading"><p class="eyebrow">FROM DESIGN TO OPERATION</p><h2 id="business-flow-title">상담부터 시운전까지,<br>하나의 흐름으로.</h2><p>현장의 조건을 바탕으로 설비와 시공을 함께 살펴봅니다.</p></div><ol>${[{name:'현장 상담',body:'사용 목적과 현장 조건 확인'},{name:'설계·기종 선정',body:'설비 구성과 적용 방식 검토'},{name:'제작·배관·설치',body:'현장에 맞춘 제작과 시공'},{name:'시운전',body:'설치 후 운전 상태 확인'}].map((v,i)=>`<li><span>0${i+1}</span><h3>${v.name}</h3><p>${v.body}</p></li>`).join('')}</ol></section>`;
+}

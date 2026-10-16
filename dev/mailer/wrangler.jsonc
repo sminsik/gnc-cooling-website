@@ -1,0 +1,7 @@
+{
+ "name":"gnc-local-mailer",
+ "main":"adapter.ts",
+ "compatibility_date":"2026-10-10",
+ "workers_dev":false,
+ "env":{"c-local":{"name":"gnc-local-mailer"}}
+}

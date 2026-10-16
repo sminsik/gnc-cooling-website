@@ -1,3 +1,4 @@
+import {publicNotice} from './publication-policy.ts';
 import {publicProject,publicResource} from './content-public.ts';
 import {productDetail} from './catalog.ts';
 import {StaffError,requirePermission,text,expectedVersion,requestId,claim,audit,executeMutation,randomToken,hash,checkOrigin,staffJson} from './staff-session.ts';
@@ -59,6 +60,7 @@ export async function fileResponse(env:FileEnv,id:string,staff:StaffPrincipal|nu
  const type=String(file.target_type),table=targetTables[type];if(!table)throw new StaffError(404,'제공할 수 없는 파일입니다.');
  let condition=staff?'1':"publication_status='published'";
  if(!staff&&type==='resources')condition+=' AND file_id=?';
+ if(!staff&&type==='notices')condition=publicNotice;
  if(!staff&&type==='projects')condition=`(${publicProject})`;
  if(!staff&&type==='resources')condition=`(${publicResource}) AND file_id=?`;
  if(!staff&&type==='products'){const product=await productDetail(env.DB,String(file.target_id));if(!product)throw new StaffError(404,'제공할 수 없는 파일입니다.');}

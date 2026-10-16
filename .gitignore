@@ -15,3 +15,19 @@ __pycache__/
 .cloudflare-restore-tests/
 configs/wrangler.development.jsonc
 configs/wrangler.production.jsonc
+
+# Local work, runtime logs, certificates and persisted/private data
+work/
+*.log
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+*.db
+*.db-wal
+*.db-shm
+*.key
+*.p12
+*.pfx
+*.pem
+*.crt
